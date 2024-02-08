@@ -31,3 +31,17 @@ curl --location 'http://localhost:9999/'
 
 4- select * from clientes;
 ```
+
+## Endpoints
+
+
+### Create transaction
+```
+curl --location --request POST 'localhost:9999/clientes/1/transacoes' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "valor": 1000,
+    "tipo" : "c",
+    "descricao" : "descricao"
+}'
+````
