@@ -1,0 +1,43 @@
+version: '3.4'
+services:
+  api1:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    image: luizimcpi/mux-rinha-go-service
+    hostname: api1
+    expose:
+      - "8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
+  api2:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    image: luizimcpi/mux-rinha-go-service
+    hostname: api2
+    expose:
+      - "8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
+
+  nginx: # Load Balancer
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api1
+      - api2
+    ports:
+      - "9999:9999"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
