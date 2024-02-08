@@ -6,26 +6,30 @@ services:
       context: .
     image: luizimcpi/mux-rinha-go-service
     hostname: api1
+    depends_on:
+      - database
     expose:
       - "8080"
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '0.5GB'
+          cpus: '0.25'
+          memory: '70MB'
   api2:
     build:
       dockerfile: ./Dockerfile
       context: .
     image: luizimcpi/mux-rinha-go-service
     hostname: api2
+    depends_on:
+      - database
     expose:
       - "8080"
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '0.5GB'
+          cpus: '0.25'
+          memory: '70MB'
 
   nginx: # Load Balancer
     image: nginx:latest
@@ -39,5 +43,23 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '0.5GB'
+          cpus: '0.25'
+          memory: '10MB'
+
+  database:
+    image: mysql:8.3.0
+    restart: always
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_DATABASE: rinhabank
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 123456
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: '400MB'
