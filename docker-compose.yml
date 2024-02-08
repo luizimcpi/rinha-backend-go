@@ -4,7 +4,7 @@ services:
     build:
       dockerfile: ./Dockerfile
       context: .
-    image: luizimcpi/mux-rinha-go-service
+    image: luizimcpi/rinha-2024q1-crebito
     hostname: api1
     depends_on:
       - database
@@ -19,7 +19,7 @@ services:
     build:
       dockerfile: ./Dockerfile
       context: .
-    image: luizimcpi/mux-rinha-go-service
+    image: luizimcpi/rinha-2024q1-crebito
     hostname: api2
     depends_on:
       - database
