@@ -1,13 +1,15 @@
 package main
 
-import "net/http"
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"server/src/router"
+)
 
+func main() {
+	r := router.Gerar()
 
-
-func main(){
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World"))
-	})
-
-	http.ListenAndServe(":8080", nil)
+	fmt.Printf("Escutando na porta %d\n", 8080)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", 8080), r))
 }
