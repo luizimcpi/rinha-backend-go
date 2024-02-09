@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -46,11 +47,16 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer db.Close()
-	
+
 	repositorioCliente := repositorios.NovoRepositorioDeClientes(db)
 	cliente, erro := repositorioCliente.BuscarPorID(clienteID)
 	if erro != nil {
 		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	if (modelos.Cliente{}) == cliente {
+		respostas.Erro(w, http.StatusNotFound, errors.New("Cliente não existe na base"))
 		return
 	}
 
@@ -65,7 +71,6 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("TransacaoID is: " + strconv.FormatUint(transacaoID, 10))
-
 
 	respostas.JSON(w, http.StatusOK, transacao)
 }
