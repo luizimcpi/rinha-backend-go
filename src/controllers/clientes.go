@@ -34,5 +34,10 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if erro = transacao.Preparar(); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
 	respostas.JSON(w, http.StatusOK, transacao)
 }

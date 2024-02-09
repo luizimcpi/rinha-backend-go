@@ -37,7 +37,7 @@ curl --location 'http://localhost:9999/'
 
 ### Create transaction
 ```
-curl --location --request POST 'localhost:9999/clientes/1/transacoes' \
+curl --location --request POST 'localhost:8080/clientes/1/transacoes' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "valor": 1000,
