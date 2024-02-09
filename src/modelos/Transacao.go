@@ -4,12 +4,20 @@ import (
 	"errors"
 	"strings"
 	"log"
+	"time"
 )
 
 type Transacao struct {
 	Valor     uint64 `json:"valor,omitempty"`
 	Tipo      string `json:"tipo,omitempty"`
 	Descricao string `json:"descricao,omitempty"`
+}
+
+type TransacaoResponse struct {
+	Valor     uint64 `json:"valor,omitempty"`
+	Tipo      string `json:"tipo,omitempty"`
+	Descricao string `json:"descricao,omitempty"`
+	RealizadaEm  time.Time `json:"realizada_em,omitempty"`
 }
 
 func (transacao *Transacao) Preparar() error {

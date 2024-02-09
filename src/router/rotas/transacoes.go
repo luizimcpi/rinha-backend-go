@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-var rotasClientes = []Rota{
+var rotasTransacoes = []Rota{
 	{
 		URI:                "/clientes/{id}/transacoes",
 		Metodo:             http.MethodPost,
