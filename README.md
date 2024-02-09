@@ -22,7 +22,7 @@ curl --location 'http://localhost:9999/'
 
 ## Mysql docker instructions
 ```
-1- docker exec -it rinha-backend-go_database_1 bash
+1- docker exec -it rinha-backend-go_mysqldocker_1 bash
 
 2- mysql -u user -p
 123456

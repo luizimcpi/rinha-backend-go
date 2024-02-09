@@ -7,7 +7,7 @@ services:
     image: luizimcpi/rinha-2024q1-crebito
     hostname: api1
     depends_on:
-      - mysql
+      - mysqldocker
     expose:
       - "8080"
     networks: 
@@ -24,7 +24,7 @@ services:
     image: luizimcpi/rinha-2024q1-crebito
     hostname: api2
     depends_on:
-      - mysql
+      - mysqldocker
     expose:
       - "8080"
     networks: 
@@ -52,11 +52,11 @@ services:
           cpus: '0.25'
           memory: '10MB'
 
-  mysql:
+  mysqldocker:
     image: mysql:8.3.0
     restart: always
     ports:
-      - 3307:3306
+      - 3306:3306
     networks:
       - prod
     environment:
