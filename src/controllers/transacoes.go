@@ -64,6 +64,28 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 
 	var transacaoID uint64
 	repositorio := repositorios.NovoRepositorioDeTransacoes(db)
+
+	var somatorioTransacoes int64
+	somatorioTransacoes, erro = repositorio.BuscarSomatorio(clienteID)
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	if transacao.Tipo == "d" {
+		var limiteNegativo = -cliente.Limite
+		var saldoAtual = somatorioTransacoes - int64(transacao.Valor)
+
+		log.Println("Limite negativo is: " + strconv.FormatInt(limiteNegativo, 10))
+
+		if saldoAtual < limiteNegativo {
+			respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("Transação de debito deixará saldo incosistente"))
+			return
+		}
+	}
+
+	log.Println("Somatorio transacoes is: " + strconv.FormatInt(somatorioTransacoes, 10))
+
 	transacaoID, erro = repositorio.Criar(transacao, clienteID)
 	if erro != nil {
 		respostas.Erro(w, http.StatusInternalServerError, erro)
@@ -72,5 +94,13 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("TransacaoID is: " + strconv.FormatUint(transacaoID, 10))
 
-	respostas.JSON(w, http.StatusOK, transacao)
+	var transacaoResponse modelos.TransacaoCriadaResponse
+	transacaoResponse.Limite = uint64(cliente.Limite)
+	if transacao.Tipo == "d" {
+		transacaoResponse.Saldo = somatorioTransacoes - int64(transacao.Valor)
+	} else {
+		transacaoResponse.Saldo = somatorioTransacoes + int64(transacao.Valor)
+	}
+
+	respostas.JSON(w, http.StatusOK, transacaoResponse)
 }

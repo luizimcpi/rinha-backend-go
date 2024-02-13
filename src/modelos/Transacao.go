@@ -13,6 +13,11 @@ type Transacao struct {
 	Descricao string `json:"descricao,omitempty"`
 }
 
+type TransacaoCriadaResponse struct {
+	Limite     uint64 `json:"limite,omitempty"`
+	Saldo      int64 `json:"saldo"`
+}
+
 type TransacaoResponse struct {
 	Valor     uint64 `json:"valor,omitempty"`
 	Tipo      string `json:"tipo,omitempty"`

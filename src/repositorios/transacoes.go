@@ -37,3 +37,26 @@ func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint6
 
 	return uint64(ultimoIDInserido), nil
 }
+
+func (repositorio Transacoes) BuscarSomatorio(clienteID uint64) (int64, error) {
+	linha, erro := repositorio.db.Query(`
+	select sum(CASE WHEN tipo = 'c' then valor WHEN tipo = 'd' then -valor END) as saldo
+	from transacoes 
+	where cliente_id = ?`,
+		clienteID,
+	)
+	if erro != nil {
+		return 0, erro
+	}
+
+	defer linha.Close()
+
+	var saldo sql.NullInt64
+
+	if linha.Next() {
+		if erro = linha.Scan(&saldo); erro != nil {
+			return 0, erro
+		}
+	}
+	return saldo.Int64, nil
+}
