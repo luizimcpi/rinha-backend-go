@@ -18,7 +18,7 @@ func NovoRepositorioDeClientes(db *sql.DB) *Clientes {
 // BuscarPorID traz um cliente do banco de dados
 func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 	linhas, erro := repositorio.db.Query(
-		"select id, limite, saldo_inicial, data_criacao from clientes where id = ?",
+		"select id, limite, data_criacao from clientes where id = ?",
 		ID,
 	)
 	if erro != nil {
@@ -32,7 +32,6 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 		if erro = linhas.Scan(
 			&cliente.ID,
 			&cliente.Limite,
-			&cliente.Saldo,
 			&cliente.CriadoEm,
 		); erro != nil {
 			return modelos.Cliente{}, erro

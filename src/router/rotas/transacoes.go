@@ -11,9 +11,4 @@ var rotasTransacoes = []Rota{
 		Metodo: http.MethodPost,
 		Funcao: controllers.CriarTransacao,
 	},
-	{
-		URI:    "/clientes/{id}/extrato",
-		Metodo: http.MethodGet,
-		Funcao: controllers.Extrato,
-	},
 }

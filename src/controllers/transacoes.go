@@ -60,7 +60,7 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Cliente encontrado: " + strconv.FormatUint(cliente.ID, 10))
+	//log.Println("Cliente encontrado: " + strconv.FormatUint(cliente.ID, 10))
 
 	var transacaoID uint64
 	repositorio := repositorios.NovoRepositorioDeTransacoes(db)
@@ -76,7 +76,7 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		var limiteNegativo = -cliente.Limite
 		var saldoAtual = somatorioTransacoes - int64(transacao.Valor)
 
-		log.Println("Limite negativo is: " + strconv.FormatInt(limiteNegativo, 10))
+		//log.Println("Limite negativo is: " + strconv.FormatInt(limiteNegativo, 10))
 
 		if saldoAtual < limiteNegativo {
 			respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("Transação de debito deixará saldo incosistente"))
@@ -84,7 +84,7 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	log.Println("Somatorio transacoes is: " + strconv.FormatInt(somatorioTransacoes, 10))
+	//log.Println("Somatorio transacoes is: " + strconv.FormatInt(somatorioTransacoes, 10))
 
 	transacaoID, erro = repositorio.Criar(transacao, clienteID)
 	if erro != nil {
@@ -103,34 +103,4 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respostas.JSON(w, http.StatusOK, transacaoResponse)
-}
-
-func Extrato(w http.ResponseWriter, r *http.Request) {
-	parametros := mux.Vars(r)
-
-	clienteID, erro := strconv.ParseUint(parametros["id"], 10, 64)
-	if erro != nil {
-		respostas.Erro(w, http.StatusBadRequest, erro)
-		return
-	}
-
-	db, erro := banco.Conectar()
-	if erro != nil {
-		respostas.Erro(w, http.StatusInternalServerError, erro)
-		return
-	}
-	defer db.Close()
-
-	repositorio := repositorios.NovoRepositorioDeTransacoes(db)
-	transacoes, erro := repositorio.Buscar(clienteID)
-	if erro != nil {
-		respostas.Erro(w, http.StatusInternalServerError, erro)
-		return
-	}
-
-	var extrato modelos.Extrato
-	extrato.UltimasTransacoes = transacoes
-
-	respostas.JSON(w, http.StatusOK, extrato)
-
 }

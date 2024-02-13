@@ -61,7 +61,7 @@ func (repositorio Transacoes) BuscarSomatorio(clienteID uint64) (int64, error) {
 	return saldo.Int64, nil
 }
 
-func (repositorio Transacoes) Buscar(clienteID uint64) ([]modelos.TransacaoResponse, error) {
+func (repositorio Transacoes) BuscarUltimas(clienteID uint64) ([]modelos.TransacaoResponse, error) {
 	linhas, erro := repositorio.db.Query(`
 	select t.valor, t.tipo, t.descricao, t.realizada_em from transacoes t
 	where t.cliente_id = ?
