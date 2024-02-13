@@ -7,9 +7,11 @@ services:
     image: luizimcpi/rinha-2024q1-crebito
     hostname: api1
     depends_on:
-      - database
+      - mysqldocker
     expose:
       - "8080"
+    networks: 
+      - prod
     deploy:
       resources:
         limits:
@@ -22,9 +24,11 @@ services:
     image: luizimcpi/rinha-2024q1-crebito
     hostname: api2
     depends_on:
-      - database
+      - mysqldocker
     expose:
       - "8080"
+    networks: 
+      - prod
     deploy:
       resources:
         limits:
@@ -40,17 +44,21 @@ services:
       - api2
     ports:
       - "9999:9999"
+    networks: 
+      - prod
     deploy:
       resources:
         limits:
           cpus: '0.25'
           memory: '10MB'
 
-  database:
+  mysqldocker:
     image: mysql:8.3.0
     restart: always
     ports:
-      - 3307:3306
+      - 3306:3306
+    networks:
+      - prod
     environment:
       MYSQL_DATABASE: rinhabank
       MYSQL_ROOT_PASSWORD: root
@@ -63,3 +71,7 @@ services:
         limits:
           cpus: '0.75'
           memory: '400MB'
+
+networks:
+  prod:
+    driver: bridge
