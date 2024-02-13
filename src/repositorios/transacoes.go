@@ -60,3 +60,35 @@ func (repositorio Transacoes) BuscarSomatorio(clienteID uint64) (int64, error) {
 	}
 	return saldo.Int64, nil
 }
+
+func (repositorio Transacoes) BuscarUltimas(clienteID uint64) ([]modelos.TransacaoResponse, error) {
+	linhas, erro := repositorio.db.Query(`
+	select t.valor, t.tipo, t.descricao, t.realizada_em from transacoes t
+	where t.cliente_id = ?
+	order by t.realizada_em desc limit 10`,
+		clienteID,
+	)
+	if erro != nil {
+		return nil, erro
+	}
+	defer linhas.Close()
+
+	var transacoes []modelos.TransacaoResponse
+
+	for linhas.Next() {
+		var transacao modelos.TransacaoResponse
+
+		if erro = linhas.Scan(
+			&transacao.Valor,
+			&transacao.Tipo,
+			&transacao.Descricao,
+			&transacao.RealizadaEm,
+		); erro != nil {
+			return nil, erro
+		}
+
+		transacoes = append(transacoes, transacao)
+	}
+
+	return transacoes, nil
+}

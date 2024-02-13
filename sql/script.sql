@@ -4,17 +4,16 @@ DROP TABLE IF EXISTS transacoes;
 CREATE TABLE clientes(
     id int auto_increment primary key,
     limite int not null,
-    saldo_inicial int not null,
     data_criacao timestamp default current_timestamp()
 ) ENGINE=INNODB;
 
-insert into clientes (limite, saldo_inicial)
+insert into clientes (limite)
 values
-(100000, 0), 
-(80000, 0),
-(1000000, 0),
-(10000000, 0),
-(500000, 0);
+(100000), 
+(80000),
+(1000000),
+(10000000),
+(500000);
 
 CREATE TABLE transacoes(
     id int auto_increment primary key,
