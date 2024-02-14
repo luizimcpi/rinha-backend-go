@@ -9,9 +9,9 @@ import (
 // Conectar abre a conexão com o banco de dados e a retorna
 func Conectar() (*sql.DB, error) {
 	//docker
-	//stringConexao := "user:123456@tcp(mysqldocker:3306)/rinhabank?charset=utf8&parseTime=True&loc=Local"
+	stringConexao := "user:123456@tcp(mysqldocker:3306)/rinhabank?charset=utf8&parseTime=True&loc=Local"
 	//local mysql
-	stringConexao := "root:123456@tcp(localhost:3306)/rinhabank?charset=utf8&parseTime=True&loc=Local" 
+	//stringConexao := "root:123456@tcp(localhost:3306)/rinhabank?charset=utf8&parseTime=True&loc=Local" 
 	db, erro := sql.Open("mysql", stringConexao)
 	if erro != nil {
 		return nil, erro
