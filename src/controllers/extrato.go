@@ -24,7 +24,7 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 
 	db, erro := banco.Conectar()
 	if erro != nil {
-		respostas.Erro(w, http.StatusInternalServerError, erro)
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
 		return
 	}
 	defer db.Close()
@@ -32,14 +32,14 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 	repositorioTransacoes := repositorios.NovoRepositorioDeTransacoes(db)
 	transacoes, erro := repositorioTransacoes.BuscarUltimas(clienteID)
 	if erro != nil {
-		respostas.Erro(w, http.StatusInternalServerError, erro)
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
 		return
 	}
 
 	repositorioCliente := repositorios.NovoRepositorioDeClientes(db)
 	cliente, erro := repositorioCliente.BuscarPorID(clienteID)
 	if erro != nil {
-		respostas.Erro(w, http.StatusInternalServerError, erro)
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
 		return
 	}
 
@@ -51,7 +51,7 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 	var somatorioTransacoes int64
 	somatorioTransacoes, erro = repositorioTransacoes.BuscarSomatorio(clienteID)
 	if erro != nil {
-		respostas.Erro(w, http.StatusInternalServerError, erro)
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
 		return
 	}
 
