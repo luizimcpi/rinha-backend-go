@@ -18,7 +18,7 @@ values
 CREATE TABLE transacoes(
     id int auto_increment primary key,
     valor int not null,
-    tipo varchar(2) not null,
+    tipo char(1) not null,
     descricao varchar(12) not null,
     realizada_em timestamp default current_timestamp(),
     cliente_id int not null,

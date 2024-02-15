@@ -24,7 +24,7 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 
 	db, erro := banco.Conectar()
 	if erro != nil {
-		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
 	}
 	defer db.Close()
@@ -32,33 +32,33 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 	repositorioTransacoes := repositorios.NovoRepositorioDeTransacoes(db)
 	transacoes, erro := repositorioTransacoes.BuscarUltimas(clienteID)
 	if erro != nil {
-		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
 	}
 
 	repositorioCliente := repositorios.NovoRepositorioDeClientes(db)
 	cliente, erro := repositorioCliente.BuscarPorID(clienteID)
 	if erro != nil {
-		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
 	}
 
 	if (modelos.Cliente{}) == cliente {
-		respostas.Erro(w, http.StatusNotFound, errors.New("Cliente não existe na base"))
+		respostas.Erro(w, http.StatusNotFound, errors.New("cliente não existe na base"))
 		return
 	}
 
 	var somatorioTransacoes int64
 	somatorioTransacoes, erro = repositorioTransacoes.BuscarSomatorio(clienteID)
 	if erro != nil {
-		respostas.Erro(w, http.StatusUnprocessableEntity, erro)//internal
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
 	}
 
 	var saldoResponse modelos.SaldoResponse
 	saldoResponse.Total = somatorioTransacoes
 	saldoResponse.DataExtrato = time.Now()
-	saldoResponse.Limite = uint64(cliente.Limite)
+	saldoResponse.Limite = cliente.Limite
 
 	var extrato modelos.Extrato
 	extrato.Saldo = saldoResponse
