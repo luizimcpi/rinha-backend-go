@@ -42,7 +42,7 @@ func (transacao *Transacao) validar() error {
 	}
 
 	if transacao.Tipo == "" {
-		return errors.New(" campo tipo é obrigatório e não pode estar em branco")
+		return errors.New("o campo tipo é obrigatório e não pode estar em branco")
 	}
 
 	if transacao.Tipo != "c" && transacao.Tipo != "d" {

@@ -18,7 +18,7 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 
 	clienteID, erro := strconv.ParseUint(parametros["id"], 10, 64)
 	if erro != nil {
-		respostas.Erro(w, http.StatusBadRequest, erro)
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
 	}
 

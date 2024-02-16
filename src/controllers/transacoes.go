@@ -18,6 +18,7 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
 
 	clienteID, erro := strconv.ParseUint(parametros["id"], 10, 64)
+
 	if erro != nil {
 		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
