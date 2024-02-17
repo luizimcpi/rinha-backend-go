@@ -16,7 +16,7 @@ services:
       resources:
         limits:
           cpus: '0.25'
-          memory: '70MB'
+          memory: '50MB'
   api2:
     build:
       dockerfile: ./Dockerfile
@@ -33,7 +33,7 @@ services:
       resources:
         limits:
           cpus: '0.25'
-          memory: '70MB'
+          memory: '50MB'
 
   nginx: # Load Balancer
     image: nginx:latest
@@ -50,7 +50,7 @@ services:
       resources:
         limits:
           cpus: '0.25'
-          memory: '10MB'
+          memory: '50MB'
 
   mysqldocker:
     image: mysql:8.3.0

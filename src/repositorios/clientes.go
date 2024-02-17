@@ -5,20 +5,17 @@ import (
 	"server/src/modelos"
 )
 
-// Clientes representa um repositório de clientes
 type Clientes struct {
 	db *sql.DB
 }
 
-// NovoRepositorioDeClientes cria um repositório de clientes
 func NovoRepositorioDeClientes(db *sql.DB) *Clientes {
 	return &Clientes{db}
 }
 
-// BuscarPorID traz um cliente do banco de dados
 func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 	linhas, erro := repositorio.db.Query(
-		"select id, limite, data_criacao from clientes where id = ?",
+		"select id, limite, saldo, data_criacao from clientes where id = ?",
 		ID,
 	)
 	if erro != nil {
@@ -32,6 +29,7 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 		if erro = linhas.Scan(
 			&cliente.ID,
 			&cliente.Limite,
+			&cliente.Saldo,
 			&cliente.CriadoEm,
 		); erro != nil {
 			return modelos.Cliente{}, erro
@@ -39,4 +37,18 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 	}
 
 	return cliente, nil
+}
+
+func (repositorio Clientes) AtualizarSaldo(clienteID uint64, saldo int64) error {
+	statement, erro := repositorio.db.Prepare("update clientes set saldo = ? where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(saldo, clienteID); erro != nil {
+		return erro
+	}
+
+	return nil
 }

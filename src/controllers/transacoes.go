@@ -60,22 +60,12 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//log.Println("Cliente encontrado: " + strconv.FormatUint(cliente.ID, 10))
-
-	//var transacaoID uint64
-	repositorio := repositorios.NovoRepositorioDeTransacoes(db)
-
-	var somatorioTransacoes int64
-	somatorioTransacoes, erro = repositorio.BuscarSomatorio(clienteID)
-	if erro != nil {
-		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
-		return
-	}
+	var saldoAtual = cliente.Saldo
 
 	var clienteLimite = int64(cliente.Limite)
 	if transacao.Tipo == "d" {
 		var limiteNegativo = -clienteLimite
-		var saldoComDebito = somatorioTransacoes - int64(transacao.Valor)
+		var saldoComDebito = saldoAtual - int64(transacao.Valor)
 
 		if saldoComDebito < limiteNegativo {
 			respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("transação de debito deixará saldo incosistente"))
@@ -84,7 +74,7 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if transacao.Tipo == "c" {
-		var saldoComCredito = somatorioTransacoes + int64(transacao.Valor)
+		var saldoComCredito = saldoAtual + int64(transacao.Valor)
 
 		if saldoComCredito > clienteLimite {
 			respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("transação de credito deixará saldo incosistente"))
@@ -92,7 +82,9 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, erro = repositorio.Criar(transacao, clienteID)
+	repositorioTransacoes := repositorios.NovoRepositorioDeTransacoes(db)
+
+	_, erro = repositorioTransacoes.Criar(transacao, clienteID)
 	if erro != nil {
 		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
@@ -102,9 +94,14 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 	transacaoResponse.Limite = cliente.Limite
 
 	if transacao.Tipo == "d" {
-		transacaoResponse.Saldo = somatorioTransacoes - int64(transacao.Valor)
+		transacaoResponse.Saldo = saldoAtual - int64(transacao.Valor)
 	} else {
-		transacaoResponse.Saldo = somatorioTransacoes + int64(transacao.Valor)
+		transacaoResponse.Saldo = saldoAtual + int64(transacao.Valor)
+	}
+
+	if erro = repositorioCliente.AtualizarSaldo(clienteID, transacaoResponse.Saldo); erro != nil {
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
 	}
 
 	respostas.JSON(w, http.StatusOK, transacaoResponse)
