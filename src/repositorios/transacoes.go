@@ -2,6 +2,7 @@ package repositorios
 
 import (
 	"database/sql"
+	"fmt"
 	"server/src/modelos"
 )
 
@@ -13,26 +14,37 @@ func NovoRepositorioDeTransacoes(db *sql.DB) *Transacoes {
 	return &Transacoes{db}
 }
 
-func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint64) (uint64, error) {
-	statement, erro := repositorio.db.Prepare(
-		"insert into transacoes (valor, tipo, descricao, cliente_id) values (?, ?, ?, ?)",
-	)
-	if erro != nil {
-		return 0, erro
-	}
-	defer statement.Close()
+func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint64) error {
+	tx, err := repositorio.db.Begin()
 
-	resultado, erro := statement.Exec(transacao.Valor, transacao.Tipo, transacao.Descricao, clienteID)
-	if erro != nil {
-		return 0, erro
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	rows := tx.QueryRow("SELECT limite, saldo FROM clientes WHERE id = ? FOR UPDATE;", clienteID)
+
+	var cliente modelos.Cliente
+
+	err = rows.Scan(&cliente.Limite, &cliente.Saldo)
+	if err != nil {
+		fmt.Println(err)
+		tx.Rollback()
+		return err
 	}
 
-	ultimoIDInserido, erro := resultado.LastInsertId()
-	if erro != nil {
-		return 0, erro
+	_, err = tx.Exec("INSERT INTO transacoes (valor, tipo, descricao, cliente_id) VALUES (?, ?, ?, ?);", transacao.Valor, transacao.Tipo, transacao.Descricao, clienteID)
+	if err != nil {
+		tx.Rollback()
+		return err
 	}
 
-	return uint64(ultimoIDInserido), nil
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (repositorio Transacoes) BuscarUltimas(clienteID uint64) ([]modelos.TransacaoResponse, error) {

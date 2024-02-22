@@ -2,6 +2,7 @@ package repositorios
 
 import (
 	"database/sql"
+	"fmt"
 	"server/src/modelos"
 )
 
@@ -40,14 +41,33 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 }
 
 func (repositorio Clientes) AtualizarSaldo(clienteID uint64, saldo int64) error {
-	statement, erro := repositorio.db.Prepare("update clientes set saldo = ? where id = ?")
-	if erro != nil {
-		return erro
-	}
-	defer statement.Close()
+	tx, err := repositorio.db.Begin()
 
-	if _, erro = statement.Exec(saldo, clienteID); erro != nil {
-		return erro
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	rows := tx.QueryRow("SELECT limite, saldo FROM clientes WHERE id = ? FOR UPDATE;", clienteID)
+
+	var cliente modelos.Cliente
+
+	err = rows.Scan(&cliente.Limite, &cliente.Saldo)
+	if err != nil {
+		fmt.Println(err)
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec("UPDATE clientes SET saldo = ? WHERE id = ?;", saldo, clienteID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 
 	return nil
