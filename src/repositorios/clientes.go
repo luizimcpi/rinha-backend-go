@@ -16,7 +16,7 @@ func NovoRepositorioDeClientes(db *sql.DB) *Clientes {
 
 func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 	linhas, erro := repositorio.db.Query(
-		"select id, limite, saldo, data_criacao from clientes where id = ?",
+		"select id, limite, saldo from clientes where id = $1",
 		ID,
 	)
 	if erro != nil {
@@ -31,7 +31,6 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 			&cliente.ID,
 			&cliente.Limite,
 			&cliente.Saldo,
-			&cliente.CriadoEm,
 		); erro != nil {
 			return modelos.Cliente{}, erro
 		}
@@ -48,7 +47,7 @@ func (repositorio Clientes) AtualizarSaldo(clienteID uint64, saldo int64) error 
 	}
 	defer tx.Rollback()
 
-	rows := tx.QueryRow("SELECT limite, saldo FROM clientes WHERE id = ? FOR UPDATE;", clienteID)
+	rows := tx.QueryRow("SELECT limite, saldo FROM clientes WHERE id = $1 FOR UPDATE;", clienteID)
 
 	var cliente modelos.Cliente
 
@@ -59,7 +58,7 @@ func (repositorio Clientes) AtualizarSaldo(clienteID uint64, saldo int64) error 
 		return err
 	}
 
-	_, err = tx.Exec("UPDATE clientes SET saldo = ? WHERE id = ?;", saldo, clienteID)
+	_, err = tx.Exec("UPDATE clientes SET saldo = $1 WHERE id = $2;", saldo, clienteID)
 	if err != nil {
 		tx.Rollback()
 		return err

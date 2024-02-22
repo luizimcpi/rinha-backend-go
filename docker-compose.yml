@@ -8,7 +8,7 @@ services:
     restart: always
     hostname: api1
     depends_on:
-      - mysqldocker
+      - db
     expose:
       - "8080"
     networks: 
@@ -16,8 +16,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: '50MB'
+          cpus: '0.20'
+          memory: '30MB'
   api2:
     <<: *api
     hostname: api2
@@ -36,28 +36,30 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.1'
           memory: '50MB'
 
-  mysqldocker:
-    image: mysql:8.3.0
-    restart: always
-    ports:
-      - 3306:3306
+  db:
+    image: postgres:latest
+    hostname: db
+    restart: unless-stopped
     networks:
       - prod
     environment:
-      MYSQL_DATABASE: rinhabank
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: user
-      MYSQL_PASSWORD: 123456
+      POSTGRES_DB: rinhabank
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - '5432:5432'
     volumes:
-      - ./sql:/docker-entrypoint-initdb.d
+      - ./sql/script.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgresql.conf:/docker-entrypoint-initdb.d/postgresql.conf
+    command: postgres -c config_file=/docker-entrypoint-initdb.d/postgresql.conf
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: '400MB'
+          cpus: '1'
+          memory: '440MB'
 
 networks:
   prod:

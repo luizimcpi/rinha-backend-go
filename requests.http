@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
     "valor": 100000,
-    "tipo" : "c",
+    "tipo" : "d",
     "descricao" : "compra"
 }
 

@@ -4,6 +4,7 @@
 ```
 go
 mux
+postgres
 ```
 
 ## Projeto para atender aos requisitos da rinha de backend 2024

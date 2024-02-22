@@ -22,7 +22,7 @@ func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint6
 	}
 	defer tx.Rollback()
 
-	rows := tx.QueryRow("SELECT limite, saldo FROM clientes WHERE id = ? FOR UPDATE;", clienteID)
+	rows := tx.QueryRow("SELECT limite, saldo FROM clientes WHERE id = $1 FOR UPDATE;", clienteID)
 
 	var cliente modelos.Cliente
 
@@ -33,7 +33,7 @@ func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint6
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO transacoes (valor, tipo, descricao, cliente_id) VALUES (?, ?, ?, ?);", transacao.Valor, transacao.Tipo, transacao.Descricao, clienteID)
+	_, err = tx.Exec("INSERT INTO transacoes (valor, tipo, descricao, cliente_id) VALUES ($1, $2, $3, $4);", transacao.Valor, transacao.Tipo, transacao.Descricao, clienteID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -50,7 +50,7 @@ func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint6
 func (repositorio Transacoes) BuscarUltimas(clienteID uint64) ([]modelos.TransacaoResponse, error) {
 	linhas, erro := repositorio.db.Query(`
 	select t.valor, t.tipo, t.descricao, t.realizada_em from transacoes t
-	where t.cliente_id = ?
+	where t.cliente_id = $1
 	order by t.realizada_em desc limit 10`,
 		clienteID,
 	)

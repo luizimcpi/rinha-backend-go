@@ -1,29 +1,26 @@
-DROP TABLE IF EXISTS clientes;
-DROP TABLE IF EXISTS transacoes;
-
 CREATE TABLE clientes(
-    id int auto_increment primary key,
-    limite int not null,
-    saldo int not null,
-    data_criacao timestamp default current_timestamp()
-) ENGINE=INNODB;
+    id SERIAL PRIMARY KEY,
+    limite INT NOT NULL,
+    saldo INT NOT NULL DEFAULT 0
+);
 
-insert into clientes (limite, saldo)
-values
-(100000, 0), 
-(80000, 0),
-(1000000, 0),
-(10000000, 0),
-(500000, 0);
+CREATE UNLOGGED TABLE transacoes(
+    id SERIAL primary key,
+    valor INTEGER NOT NULL,
+    tipo CHAR(1) NOT NULL,
+    descricao VARCHAR(12) NOT NULL,
+    realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+    cliente_id INTEGER NOT NULL,
+    CONSTRAINT fk_transacoes_cliente_id FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+);
 
-CREATE TABLE transacoes(
-    id int auto_increment primary key,
-    valor int not null,
-    tipo char(1) not null,
-    descricao varchar(12) not null,
-    realizada_em timestamp default current_timestamp(),
-    cliente_id int not null,
-    FOREIGN KEY (cliente_id)
-    REFERENCES clientes(id)
-    ON DELETE CASCADE
-) ENGINE=INNODB;
+DO
+  $$ BEGIN INSERT INTO clientes (limite) 
+VALUES 
+  (100000), 
+  (80000), 
+  (1000000), 
+  (10000000), 
+  (500000);
+END;
+$$
