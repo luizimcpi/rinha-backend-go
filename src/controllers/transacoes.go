@@ -84,7 +84,7 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 
 	repositorioTransacoes := repositorios.NovoRepositorioDeTransacoes(db)
 
-	_, erro = repositorioTransacoes.Criar(transacao, clienteID)
+	erro = repositorioTransacoes.Criar(transacao, clienteID)
 	if erro != nil {
 		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
