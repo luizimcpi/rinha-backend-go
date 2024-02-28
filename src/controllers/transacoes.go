@@ -62,22 +62,10 @@ func CriarTransacao(w http.ResponseWriter, r *http.Request) {
 
 	var saldoAtual = cliente.Saldo
 
-	var clienteLimite = int64(cliente.Limite)
 	if transacao.Tipo == "d" {
-		var limiteNegativo = -clienteLimite
-		var saldoComDebito = saldoAtual - int64(transacao.Valor)
 
-		if saldoComDebito < limiteNegativo {
+		if transacao.Valor > cliente.Limite+uint64(saldoAtual) {
 			respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("transação de debito deixará saldo incosistente"))
-			return
-		}
-	}
-
-	if transacao.Tipo == "c" {
-		var saldoComCredito = saldoAtual + int64(transacao.Valor)
-
-		if saldoComCredito > clienteLimite {
-			respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("transação de credito deixará saldo incosistente"))
 			return
 		}
 	}
