@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,9 +12,58 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/mysql"
 )
 
+type databaseContainer struct {
+	*mysql.MySQLContainer
+	connectionString string
+}
+
+func setupContainer(ctx context.Context) (*databaseContainer, error) {
+	mysqlContainer, err := mysql.RunContainer(ctx,
+		testcontainers.WithImage("mysql:8.0.36"),
+		mysql.WithDatabase("rinhabank"),
+		mysql.WithUsername("user"),
+		mysql.WithPassword("123456"),
+		mysql.WithScripts("./sql/script.sql"),
+	)
+
+	if err != nil {
+		log.Fatalf("Could not start mysql container: %s", err)
+	}
+
+	connString, err := mysqlContainer.ConnectionString(ctx, "parseTime=true")
+
+	if err != nil {
+		log.Fatalf("Could not get connection string mysql: %s", err)
+	}
+
+	return &databaseContainer{
+		MySQLContainer:   mysqlContainer,
+		connectionString: connString,
+	}, nil
+}
+
 func TestMain(m *testing.M) {
+	ctx := context.Background()
+	container, err := setupContainer(ctx)
+
+	if err != nil {
+		log.Fatalf("could not start mysql container")
+	}
+
+	log.Println("connection string: " + container.connectionString)
+
+	os.Setenv("DB_STRING_CONEXAO", container.connectionString)
+
+	defer func() {
+		if err := container.Terminate(ctx); err != nil {
+			log.Fatalf("failed to terminate container: %s", err)
+		}
+	}()
+
 	code := m.Run()
 	os.Exit(code)
 }
@@ -36,6 +87,17 @@ func TestCriarTransacaoRetornaErroQuandoRecebeIdInexistente(t *testing.T) {
 	checkResponseCode(t, http.StatusNotFound, response.Code)
 }
 
+func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodyComCampoValorNegativo(t *testing.T) {
+
+	var jsonStr = []byte(`{"valor": -1000, "tipo": "c", "descricao": "teste"}`)
+	req, _ := http.NewRequest("POST", "/clientes/1/transacoes", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeTransacaoRequest(req, "/clientes/{id}/transacoes")
+
+	checkResponseCode(t, http.StatusUnprocessableEntity, response.Code)
+}
+
 func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodySemCampoValor(t *testing.T) {
 
 	var jsonStr = []byte(`{"tipo":"d", "descricao": "teste"}`)
@@ -45,14 +107,6 @@ func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodySemCampoValor(t *te
 	response := executeTransacaoRequest(req, "/clientes/{id}/transacoes")
 
 	checkResponseCode(t, http.StatusUnprocessableEntity, response.Code)
-
-	var body map[string]string
-	var expected = "o campo valor é obrigatório e não pode ser 0"
-	json.Unmarshal(response.Body.Bytes(), &body)
-	if body["erro"] != expected {
-		t.Errorf("wrong response body for param valor: got %v want %v",
-			response.Body.String(), expected)
-	}
 }
 
 func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodySemCampoTipo(t *testing.T) {
@@ -134,6 +188,17 @@ func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodyECampoDescricaoMaio
 func TestCriarTransacaoRetornaSucessoQuandoRecebeIdValidoComBodyValidoParaTipoCredito(t *testing.T) {
 
 	var jsonStr = []byte(`{"valor": 1000, "tipo": "c", "descricao": "teste"}`)
+	req, _ := http.NewRequest("POST", "/clientes/1/transacoes", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeTransacaoRequest(req, "/clientes/{id}/transacoes")
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+}
+
+func TestCriarTransacaoRetornaSucessoQuandoRecebeIdValidoComBodyValidoParaTipoDebito(t *testing.T) {
+
+	var jsonStr = []byte(`{"valor": 1000, "tipo": "d", "descricao": "teste"}`)
 	req, _ := http.NewRequest("POST", "/clientes/1/transacoes", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 

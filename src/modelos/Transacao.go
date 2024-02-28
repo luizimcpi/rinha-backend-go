@@ -37,8 +37,8 @@ func (transacao *Transacao) Preparar() error {
 }
 
 func (transacao *Transacao) validar() error {
-	if transacao.Valor == 0 {
-		return errors.New("o campo valor é obrigatório e não pode ser 0")
+	if transacao.Valor <= 0 {
+		return errors.New("o campo valor é obrigatório e não pode ser menor ou igual a 0")
 	}
 
 	if transacao.Tipo == "" {

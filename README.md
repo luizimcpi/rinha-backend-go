@@ -16,7 +16,6 @@ docker-compose up
 
 ## Executar os testes
 ```
-*Uma instancia do mysql deve estar rodando para conseguir executar os testes altere os parametros no arquivo banco.go
 go test -> resumido 
 go test -v -> verbose mode mostra todos os cenários
 ```

@@ -1,6 +1,6 @@
 version: '3.4'
 services:
-  api1:
+  api1: &api1
     build:
       dockerfile: ./Dockerfile
       context: .
@@ -12,28 +12,16 @@ services:
       - "8080"
     networks: 
       - prod
+    environment:
+      - DB_STRING_CONEXAO=user:123456@tcp(mysqldocker:3306)/rinhabank?charset=utf8&parseTime=True&loc=Local
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: '50MB'
+          cpus: '0.2'
+          memory: '70MB'
   api2:
-    build:
-      dockerfile: ./Dockerfile
-      context: .
-    image: luizimcpi/rinha-2024q1-crebito
+    <<: *api1
     hostname: api2
-    depends_on:
-      - mysqldocker
-    expose:
-      - "8080"
-    networks: 
-      - prod
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: '50MB'
 
   nginx: # Load Balancer
     image: nginx:latest
@@ -49,8 +37,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: '50MB'
+          cpus: '0.1'
+          memory: '10MB'
 
   mysqldocker:
     image: mysql:8.3.0
@@ -69,7 +57,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: '1'
           memory: '400MB'
 
 networks:
