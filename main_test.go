@@ -98,6 +98,17 @@ func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodyComCampoValorNegati
 	checkResponseCode(t, http.StatusUnprocessableEntity, response.Code)
 }
 
+func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodyComCampoValorDecimal(t *testing.T) {
+
+	var jsonStr = []byte(`{"valor": 1.2, "tipo": "c", "descricao": "teste"}`)
+	req, _ := http.NewRequest("POST", "/clientes/1/transacoes", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeTransacaoRequest(req, "/clientes/{id}/transacoes")
+
+	checkResponseCode(t, http.StatusUnprocessableEntity, response.Code)
+}
+
 func TestCriarTransacaoRetornaErroQuandoRecebeIdValidoComBodySemCampoValor(t *testing.T) {
 
 	var jsonStr = []byte(`{"tipo":"d", "descricao": "teste"}`)
