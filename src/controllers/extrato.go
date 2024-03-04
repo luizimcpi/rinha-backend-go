@@ -66,7 +66,10 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 
 	var extrato modelos.Extrato
 	extrato.Saldo = saldoResponse
-	extrato.UltimasTransacoes = transacoes
+	extrato.UltimasTransacoes = make([]modelos.TransacaoResponse, 0)
+	if transacoes != nil {
+		extrato.UltimasTransacoes = transacoes
+	}
 
 	respostas.JSON(w, http.StatusOK, extrato)
 

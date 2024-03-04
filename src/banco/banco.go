@@ -3,7 +3,6 @@ package banco
 import (
 	"database/sql"
 	"os"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql" // Driver
 )
@@ -16,9 +15,8 @@ func Conectar() (*sql.DB, error) {
 		return nil, erro
 	}
 
-	db.SetConnMaxLifetime(time.Second * 10)
 	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
+	db.SetMaxIdleConns(5)
 
 	if erro = db.Ping(); erro != nil {
 		db.Close()
