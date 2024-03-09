@@ -15,7 +15,7 @@ func NovoRepositorioDeClientes(db *sql.DB) *Clientes {
 
 func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 	linhas, erro := repositorio.db.Query(
-		"select id, limite, saldo, data_criacao from clientes where id = ? FOR UPDATE",
+		"select id, limite, saldo from clientes where id = $1 FOR UPDATE",
 		ID,
 	)
 	if erro != nil {
@@ -30,7 +30,6 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 			&cliente.ID,
 			&cliente.Limite,
 			&cliente.Saldo,
-			&cliente.CriadoEm,
 		); erro != nil {
 			return modelos.Cliente{}, erro
 		}
@@ -40,7 +39,7 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 }
 
 func (repositorio Clientes) AtualizarSaldo(clienteID uint64, saldo int64) error {
-	statement, erro := repositorio.db.Prepare("update clientes set saldo = ? where id = ?")
+	statement, erro := repositorio.db.Prepare("update clientes set saldo = $1 where id = $2")
 	if erro != nil {
 		return erro
 	}
