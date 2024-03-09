@@ -15,7 +15,7 @@ func NovoRepositorioDeClientes(db *sql.DB) *Clientes {
 
 func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 	linhas, erro := repositorio.db.Query(
-		"select id, limite, saldo, data_criacao from clientes where id = ? FOR UPDATE",
+		"select id, limite, saldo from clientes where id = ? FOR UPDATE",
 		ID,
 	)
 	if erro != nil {
