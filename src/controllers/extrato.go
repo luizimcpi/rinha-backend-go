@@ -48,17 +48,6 @@ func Extrato(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var clienteLimite = int64(cliente.Limite)
-	if cliente.Saldo > clienteLimite {
-		respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("saldo incosistente"))
-		return
-	}
-
-	if cliente.Saldo < -clienteLimite {
-		respostas.Erro(w, http.StatusUnprocessableEntity, errors.New("saldo incosistente"))
-		return
-	}
-
 	var saldoResponse modelos.SaldoResponse
 	saldoResponse.Total = cliente.Saldo
 	saldoResponse.DataExtrato = time.Now()

@@ -5,10 +5,8 @@ import (
 	"server/src/controllers"
 )
 
-var rotasTransacoes = []Rota{
-	{
-		URI:    "/clientes/{id}/transacoes",
-		Metodo: http.MethodPost,
-		Funcao: controllers.CriarTransacao,
-	},
+var rotaTransacoes = Rota{
+	URI:    "/clientes/{id}/transacoes",
+	Metodo: http.MethodPost,
+	Funcao: controllers.CriarTransacao,
 }
