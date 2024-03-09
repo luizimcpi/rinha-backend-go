@@ -1,29 +1,26 @@
-DROP TABLE IF EXISTS clientes;
-DROP TABLE IF EXISTS transacoes;
+CREATE TABLE public.clientes
+(
+  id INT PRIMARY KEY,
+  limite INT NOT NULL,
+  saldo INT NOT NULL DEFAULT 0
+);
 
-CREATE TABLE clientes(
-    id int auto_increment primary key,
-    limite int not null,
-    saldo int not null,
-    data_criacao timestamp default current_timestamp()
-) ENGINE=INNODB;
-
-insert into clientes (limite, saldo)
+insert into public.clientes (id, limite)
 values
-(100000, 0), 
-(80000, 0),
-(1000000, 0),
-(10000000, 0),
-(500000, 0);
+(1, 100000),
+(2, 80000),
+(3, 1000000),
+(4, 10000000),
+(5, 500000);
 
-CREATE TABLE transacoes(
-    id int auto_increment primary key,
-    valor int not null,
-    tipo char(1) not null,
-    descricao varchar(12) not null,
-    realizada_em timestamp default current_timestamp(),
-    cliente_id int not null,
-    FOREIGN KEY (cliente_id)
-    REFERENCES clientes(id)
-    ON DELETE CASCADE
-) ENGINE=INNODB;
+CREATE TABLE public.transacoes
+(
+  id SERIAL PRIMARY KEY,
+  valor INT not null,
+  tipo CHAR(1) not null,
+  descricao character varying(11) not null,
+  realizada_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  cliente_id INTEGER REFERENCES public.clientes (id) NOT NULL
+);
+
+CREATE INDEX transacao_idx ON transacoes USING btree (cliente_id, realizada_em);

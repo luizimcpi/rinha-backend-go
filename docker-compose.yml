@@ -7,18 +7,22 @@ services:
     image: luizimcpi/rinha-2024q1-crebito
     hostname: api1
     depends_on:
-      - mysqldocker
+      - database
     expose:
       - "8080"
     networks: 
       - prod
     environment:
-      - DB_STRING_CONEXAO=user:123456@tcp(mysqldocker:3306)/rinhabank?charset=utf8&parseTime=True&loc=Local
+      - DB_HOST=database
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=postgres
+      - DB_PORT=5432
     deploy:
       resources:
         limits:
-          cpus: '0.2'
-          memory: '70MB'
+          cpus: '0.40'
+          memory: '100MB'
   api2:
     <<: *api1
     hostname: api2
@@ -37,28 +41,27 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: '10MB'
+          cpus: '0.2'
+          memory: '150MB'
 
-  mysqldocker:
-    image: mysql:8.3.0
+  database:
     restart: always
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./sql/script.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - 3306:3306
+      - 5432:5432
     networks:
       - prod
-    environment:
-      MYSQL_DATABASE: rinhabank
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: user
-      MYSQL_PASSWORD: 123456
-    volumes:
-      - ./sql:/docker-entrypoint-initdb.d
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: '400MB'
+          cpus: '0.5'
+          memory: '200MB'
+    command: postgres -c checkpoint_timeout=600 -c max_wal_size=2096 -c synchronous_commit=0 -c full_page_writes=0 -c fsync=off -c check_function_bodies=false
 
 networks:
   prod:

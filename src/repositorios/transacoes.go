@@ -13,32 +13,27 @@ func NovoRepositorioDeTransacoes(db *sql.DB) *Transacoes {
 	return &Transacoes{db}
 }
 
-func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint64) (uint64, error) {
+func (repositorio Transacoes) Criar(transacao modelos.Transacao, clienteID uint64) error {
 	statement, erro := repositorio.db.Prepare(
-		"insert into transacoes (valor, tipo, descricao, cliente_id) values (?, ?, ?, ?)",
+		"insert into transacoes (valor, tipo, descricao, cliente_id) values ($1, $2, $3, $4)",
 	)
 	if erro != nil {
-		return 0, erro
+		return erro
 	}
 	defer statement.Close()
 
-	resultado, erro := statement.Exec(transacao.Valor, transacao.Tipo, transacao.Descricao, clienteID)
+	_, erro = statement.Exec(transacao.Valor, transacao.Tipo, transacao.Descricao, clienteID)
 	if erro != nil {
-		return 0, erro
+		return erro
 	}
 
-	ultimoIDInserido, erro := resultado.LastInsertId()
-	if erro != nil {
-		return 0, erro
-	}
-
-	return uint64(ultimoIDInserido), nil
+	return nil
 }
 
 func (repositorio Transacoes) BuscarUltimas(clienteID uint64) ([]modelos.TransacaoResponse, error) {
 	linhas, erro := repositorio.db.Query(`
 	select t.valor, t.tipo, t.descricao, t.realizada_em from transacoes t
-	where t.cliente_id = ?
+	where t.cliente_id = $1
 	order by t.realizada_em desc limit 10`,
 		clienteID,
 	)

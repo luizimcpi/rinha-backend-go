@@ -13,36 +13,37 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/modules/mysql"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
 type databaseContainer struct {
-	*mysql.MySQLContainer
+	*postgres.PostgresContainer
 	connectionString string
 }
 
 func setupContainer(ctx context.Context) (*databaseContainer, error) {
-	mysqlContainer, err := mysql.RunContainer(ctx,
-		testcontainers.WithImage("mysql:8.0.36"),
-		mysql.WithDatabase("rinhabank"),
-		mysql.WithUsername("user"),
-		mysql.WithPassword("123456"),
-		mysql.WithScripts("./sql/script.sql"),
+	postgresContainer, err := postgres.RunContainer(ctx,
+		testcontainers.WithImage("docker.io/postgres:15.2-alpine"),
+		postgres.WithDatabase("rinhabank"),
+		postgres.WithUsername("user"),
+		postgres.WithPassword("123456"),
+		postgres.WithInitScripts("./sql/script.sql"),
+		postgres.WithConfigFile("postgresql.conf"),
 	)
 
 	if err != nil {
-		log.Fatalf("Could not start mysql container: %s", err)
+		log.Fatalf("Could not start postgres container: %s", err)
 	}
 
-	connString, err := mysqlContainer.ConnectionString(ctx, "parseTime=true")
+	connString, err := postgresContainer.ConnectionString(ctx, "parseTime=true")
 
 	if err != nil {
-		log.Fatalf("Could not get connection string mysql: %s", err)
+		log.Fatalf("Could not get connection string postgres: %s", err)
 	}
 
 	return &databaseContainer{
-		MySQLContainer:   mysqlContainer,
-		connectionString: connString,
+		PostgresContainer: postgresContainer,
+		connectionString:  connString,
 	}, nil
 }
 
@@ -51,12 +52,16 @@ func TestMain(m *testing.M) {
 	container, err := setupContainer(ctx)
 
 	if err != nil {
-		log.Fatalf("could not start mysql container")
+		log.Fatalf("could not start postgresContainer")
 	}
 
 	log.Println("connection string: " + container.connectionString)
 
-	os.Setenv("DB_STRING_CONEXAO", container.connectionString)
+	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_USER", "user")
+	os.Setenv("DB_PASSWORD", "123456")
+	os.Setenv("DB_DATABASE", "rinhabank")
+	os.Setenv("DB_PORT", container.connectionString)
 
 	defer func() {
 		if err := container.Terminate(ctx); err != nil {

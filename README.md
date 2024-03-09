@@ -4,6 +4,8 @@
 ```
 go
 mux
+postgres
+nginx
 ```
 
 ## Projeto para atender aos requisitos da rinha de backend 2024
@@ -26,28 +28,7 @@ go test -v -> verbose mode mostra todos os cenários
 curl --location 'http://localhost:9999/'
 ````
 
-## Mysql docker instructions
-```
-1- docker exec -it rinha-backend-go_mysqldocker_1 bash
-
-2- mysql -u user -p
-123456
-
-3- use rinhabank;
-
-4- select * from clientes;
-```
-
 ## Endpoints
-
-
-### Create transaction
 ```
-curl --location --request POST 'localhost:8080/clientes/1/transacoes' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "valor": 1000,
-    "tipo" : "c",
-    "descricao" : "descricao"
-}'
-````
+use requests.http file with humao.rest-client vscode plugin
+```

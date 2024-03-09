@@ -2,15 +2,23 @@ package banco
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql" // Driver
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-// Conectar abre a conexão com o banco de dados e a retorna
 func Conectar() (*sql.DB, error) {
-	stringConexao := os.Getenv("DB_STRING_CONEXAO")
-	db, erro := sql.Open("mysql", stringConexao)
+
+	stringConexao := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_DATABASE"),
+		os.Getenv("DB_PORT"),
+	)
+
+	db, erro := sql.Open("pgx", stringConexao)
 	if erro != nil {
 		return nil, erro
 	}
