@@ -30,7 +30,6 @@ func (repositorio Clientes) BuscarPorID(ID uint64) (modelos.Cliente, error) {
 			&cliente.ID,
 			&cliente.Limite,
 			&cliente.Saldo,
-			&cliente.CriadoEm,
 		); erro != nil {
 			return modelos.Cliente{}, erro
 		}
